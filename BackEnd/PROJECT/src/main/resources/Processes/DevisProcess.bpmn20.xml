@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- origin at X=0.0 Y=0.0 -->
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:ext="http://org.eclipse.bpmn2/ext" xmlns:flowable="http://flowable.org/bpmn" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="Definitions_1" exporter="org.eclipse.bpmn2.modeler.core" exporterVersion="1.5.4.RC1-v20220528-0836-B1" targetNamespace="http://www.flowable.org/processdef">
+  <process id="DevisReq" name="Devis Request" isExecutable="true" processType="Public">
+    <documentation id="Documentation_1">Model for Deadline Request</documentation>
+    <startEvent id="StartEvent_1" name="Devis demandé">
+      <outgoing>SequenceFlow_29</outgoing>
+    </startEvent>
+    <serviceTask id="ServiceTask_1" flowable:class="com.insurance.delegates.CreateDevis" name="Simuler Devis">
+      <incoming>SequenceFlow_29</incoming>
+      <outgoing>SequenceFlow_42</outgoing>
+    </serviceTask>
+    <userTask id="UserTask_5" name="Saisir Information Souscripteur">
+      <incoming>SequenceFlow_33</incoming>
+      <outgoing>SequenceFlow_36</outgoing>
+    </userTask>
+    <serviceTask id="ServiceTask_12" flowable:class="com.insurance.delegates.DevisDataPDF" name="Générer devis">
+      <incoming>SequenceFlow_1</incoming>
+      <outgoing>SequenceFlow_39</outgoing>
+    </serviceTask>
+    <userTask id="UserTask_6" name="Appeler SI Blacklisted">
+      <incoming>SequenceFlow_36</incoming>
+      <outgoing>SequenceFlow_34</outgoing>
+    </userTask>
+    <sequenceFlow id="SequenceFlow_36" sourceRef="UserTask_5" targetRef="UserTask_6"/>
+    <endEvent id="EndEvent_3" name="Devis effectué">
+      <incoming>SequenceFlow_39</incoming>
+      <terminateEventDefinition id="TerminateEventDefinition_3"/>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_39" sourceRef="ServiceTask_12" targetRef="EndEvent_3"/>
+    <serviceTask id="ServiceTask_2" flowable:class="com.insurance.delegates.InsuranceAPI" name="Convertir Simulation en Devis">
+      <incoming>SequenceFlow_43</incoming>
+      <outgoing>SequenceFlow_18</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="ExclusiveGateway_1" name="Accepter Conversion" gatewayDirection="Diverging">
+      <incoming>SequenceFlow_18</incoming>
+      <outgoing>SequenceFlow_30</outgoing>
+      <outgoing>SequenceFlow_33</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="SequenceFlow_18" sourceRef="ServiceTask_2" targetRef="ExclusiveGateway_1"/>
+    <sequenceFlow id="SequenceFlow_29" sourceRef="StartEvent_1" targetRef="ServiceTask_1"/>
+    <endEvent id="EndEvent_2" name="Converison refusée">
+      <extensionElements>
+        <ext:style ext:labelPosition="Left of Figure"/>
+      </extensionElements>
+      <incoming>SequenceFlow_30</incoming>
+      <terminateEventDefinition id="TerminateEventDefinition_2"/>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_30" sourceRef="ExclusiveGateway_1" targetRef="EndEvent_2">
+      <conditionExpression xsi:type="tFormalExpression" id="FormalExpression_1">${apiOK ==&quot;NO&quot;}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_33" sourceRef="ExclusiveGateway_1" targetRef="UserTask_5">
+      <conditionExpression xsi:type="tFormalExpression" id="FormalExpression_2">${apiOK ==&quot;YES&quot;}</conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="ExclusiveGateway_5" name="Blacklist ? " gatewayDirection="Diverging">
+      <incoming>SequenceFlow_34</incoming>
+      <outgoing>SequenceFlow_37</outgoing>
+      <outgoing>SequenceFlow_1</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="SequenceFlow_34" sourceRef="UserTask_6" targetRef="ExclusiveGateway_5"/>
+    <endEvent id="EndEvent_4" name="Personne Blacklisted">
+      <incoming>SequenceFlow_37</incoming>
+      <terminateEventDefinition id="TerminateEventDefinition_4"/>
+    </endEvent>
+    <sequenceFlow id="SequenceFlow_37" sourceRef="ExclusiveGateway_5" targetRef="EndEvent_4">
+      <conditionExpression xsi:type="tFormalExpression" id="FormalExpression_3">${apiOK ==&quot;NO&quot;}</conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="ServiceTask_5" flowable:class="com.insurance.delegates.DevisPacks" name="Appeler SI Assurance">
+      <incoming>SequenceFlow_42</incoming>
+      <outgoing>SequenceFlow_43</outgoing>
+    </serviceTask>
+    <sequenceFlow id="SequenceFlow_42" sourceRef="ServiceTask_1" targetRef="ServiceTask_5"/>
+    <sequenceFlow id="SequenceFlow_43" sourceRef="ServiceTask_5" targetRef="ServiceTask_2"/>
+    <sequenceFlow id="SequenceFlow_1" sourceRef="ExclusiveGateway_5" targetRef="ServiceTask_12">
+      <conditionExpression xsi:type="tFormalExpression" id="FormalExpression_7">${apiOK ==&quot;YES&quot;}</conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Deadline">
+    <bpmndi:BPMNPlane id="BPMNPlane_Deadline" bpmnElement="DevisReq">
+      <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
+        <omgdc:Bounds height="36.0" width="36.0" x="70.0" y="243.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_1" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="64.0" x="56.0" y="279.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_1" bpmnElement="ServiceTask_1" isExpanded="true">
+        <omgdc:Bounds height="75.0" width="130.0" x="240.0" y="224.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_2" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="17.0" width="91.0" x="259.0" y="253.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_5" bpmnElement="UserTask_5" isExpanded="true">
+        <omgdc:Bounds height="50.0" width="110.0" x="1197.0" y="237.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_60" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="51.0" width="83.0" x="1210.0" y="237.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_12" bpmnElement="ServiceTask_12" isExpanded="true">
+        <omgdc:Bounds height="75.0" width="129.0" x="1750.0" y="224.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_62" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="17.0" width="91.0" x="1769.0" y="253.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_UserTask_6" bpmnElement="UserTask_6" isExpanded="true">
+        <omgdc:Bounds height="50.0" width="110.0" x="1412.0" y="237.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_63" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="78.0" x="1428.0" y="245.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_3" bpmnElement="EndEvent_3">
+        <omgdc:Bounds height="36.0" width="36.0" x="2031.0" y="243.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_66" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="54.0" x="2022.0" y="279.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_2" bpmnElement="ServiceTask_2" isExpanded="true">
+        <omgdc:Bounds height="75.0" width="131.0" x="670.0" y="223.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_4" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="51.0" width="98.0" x="686.0" y="235.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_1" bpmnElement="ExclusiveGateway_1" isMarkerVisible="true">
+        <omgdc:Bounds height="50.0" width="50.0" x="973.0" y="236.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_12" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="74.0" x="961.0" y="286.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_2" bpmnElement="EndEvent_2">
+        <omgdc:Bounds height="36.0" width="36.0" x="980.0" y="52.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_37" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="78.0" x="896.0" y="53.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ExclusiveGateway_5" bpmnElement="ExclusiveGateway_5" isMarkerVisible="true">
+        <omgdc:Bounds height="50.0" width="50.0" x="1600.0" y="237.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_44" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="17.0" width="70.0" x="1590.0" y="287.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_EndEvent_4" bpmnElement="EndEvent_4">
+        <omgdc:Bounds height="36.0" width="36.0" x="1608.0" y="52.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_47" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="71.0" x="1591.0" y="88.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_ServiceTask_5" bpmnElement="ServiceTask_5" isExpanded="true">
+        <omgdc:Bounds height="50.0" width="110.0" x="455.0" y="235.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_52" labelStyle="BPMNLabelStyle_1">
+          <omgdc:Bounds height="34.0" width="78.0" x="471.0" y="243.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_36" bpmnElement="SequenceFlow_36" sourceElement="BPMNShape_UserTask_5" targetElement="BPMNShape_UserTask_6">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1307.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1359.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1412.0" y="262.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_64"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_39" bpmnElement="SequenceFlow_39" sourceElement="BPMNShape_ServiceTask_12" targetElement="BPMNShape_EndEvent_3">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1879.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1955.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="2031.0" y="261.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_67"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_18" bpmnElement="SequenceFlow_18" sourceElement="BPMNShape_ServiceTask_2" targetElement="BPMNShape_ExclusiveGateway_1">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="801.0" y="260.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="887.0" y="260.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="973.0" y="261.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_23"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_29" bpmnElement="SequenceFlow_29" sourceElement="BPMNShape_StartEvent_1" targetElement="BPMNShape_ServiceTask_1">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="106.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="173.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="240.0" y="261.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_34"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_30" bpmnElement="SequenceFlow_30" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_EndEvent_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="998.0" y="236.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="998.0" y="162.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="998.0" y="88.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_38"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_33" bpmnElement="SequenceFlow_33" sourceElement="BPMNShape_ExclusiveGateway_1" targetElement="BPMNShape_UserTask_5">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1023.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1110.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1197.0" y="262.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_42"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_34" bpmnElement="SequenceFlow_34" sourceElement="BPMNShape_UserTask_6" targetElement="BPMNShape_ExclusiveGateway_5">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1522.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1561.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1600.0" y="262.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_45"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_37" bpmnElement="SequenceFlow_37" sourceElement="BPMNShape_ExclusiveGateway_5" targetElement="BPMNShape_EndEvent_4">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1625.0" y="237.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1625.0" y="163.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1626.0" y="88.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_48"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_42" bpmnElement="SequenceFlow_42" sourceElement="BPMNShape_ServiceTask_1" targetElement="BPMNShape_ServiceTask_5">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="370.0" y="261.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="412.0" y="260.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="455.0" y="260.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_53"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_43" bpmnElement="SequenceFlow_43" sourceElement="BPMNShape_ServiceTask_5" targetElement="BPMNShape_ServiceTask_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="565.0" y="260.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="617.0" y="260.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="670.0" y="260.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_54"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="BPMNShape_ExclusiveGateway_5" targetElement="BPMNShape_ServiceTask_12">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1650.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1700.0" y="262.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1750.0" y="261.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_3"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+    <bpmndi:BPMNLabelStyle id="BPMNLabelStyle_1">
+      <omgdc:Font name="arial" size="9.0"/>
+    </bpmndi:BPMNLabelStyle>
+  </bpmndi:BPMNDiagram>
+</definitions>
