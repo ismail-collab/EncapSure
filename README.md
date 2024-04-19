@@ -1,3 +1,17 @@
-## EncapSure Web Platform
+# EncapSure Web Platform
 
-EncapSure is a cutting-edge platform developed to facilitate and refine the auto insurance experience. This platform is the result of extensive research and development efforts aimed at streamlining the end-to-end insurance process online.
+Welcome to the repository for EncapSure, the comprehensive web platform for auto insurance optimization. 
+
+## Documentation
+
+Complete documentation detailing the platform's design and features is available. For an in-depth understanding of the system architecture and business process optimizations implemented, please refer to our documentation:
+
+[EncapSure Platform Documentation](https://drive.google.com/file/d/1eCceOH3-dfLCNZC7gTcL2Dz9FpezRwUz/view?usp=sharing)
+
+## Technology Stack
+
+EncapSure is engineered using a selection of modern technologies chosen for their robustness and industry-wide adoption:
+
+- Backend: Spring Boot, Laravel
+- Frontend: HTML, CSS, JavaScript, Bootstrap
+
